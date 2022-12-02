@@ -29,6 +29,7 @@ namespace IdentityProject1.Models
         public string City { get; set; }
         public string Direction { get; set; }
         [Required]
+        [Display(Name = "Birth Day")]
         public DateTime BirthDay { get; set; }
         [Required]
         public bool State { get; set; }
