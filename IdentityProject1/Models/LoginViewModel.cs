@@ -12,7 +12,7 @@ namespace IdentityProject1.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Display(Name = "Recordarme")]
+        [Display(Name = "Remember me")]
         public bool RememberMe { get; set; }
     }
 }

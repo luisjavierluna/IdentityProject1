@@ -70,5 +70,11 @@ namespace IdentityProject1.Controllers
                 ModelState.AddModelError(String.Empty, error.Description);
             }
         }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
     }
 }
