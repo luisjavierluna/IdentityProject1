@@ -76,5 +76,31 @@ namespace IdentityProject1.Controllers
         {
             return View();
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel loginViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(
+                    loginViewModel.Email, 
+                    loginViewModel.Password, 
+                    loginViewModel.RememberMe, 
+                    lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                } 
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid Acces");
+                    return View(loginViewModel);
+                }
+            }
+
+            return View(loginViewModel);
+        }
     }
 }
