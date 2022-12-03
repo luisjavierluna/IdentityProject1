@@ -23,16 +23,19 @@ namespace IdentityProject1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SignIn()
+        public async Task<IActionResult> SignIn(string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             SignInViewModel signInViewModel = new SignInViewModel();
             return View(signInViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SignIn(SignInViewModel signInViewModel)
+        public async Task<IActionResult> SignIn(SignInViewModel signInViewModel, string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+            returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var user = new AppUser
@@ -55,7 +58,8 @@ namespace IdentityProject1.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    //return RedirectToAction("Index", "Home");
+                    return LocalRedirect(returnUrl);
                 }
 
                 ValidateErrors(result);
@@ -85,6 +89,7 @@ namespace IdentityProject1.Controllers
         public async Task<IActionResult> Login(LoginViewModel loginViewModel, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(
@@ -96,7 +101,7 @@ namespace IdentityProject1.Controllers
                 if (result.Succeeded)
                 {
                     //return RedirectToAction("Index", "Home");
-                    return Redirect(returnUrl);
+                    return LocalRedirect(returnUrl);
                 } 
                 else
                 {
