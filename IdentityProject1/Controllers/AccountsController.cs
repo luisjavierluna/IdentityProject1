@@ -96,13 +96,17 @@ namespace IdentityProject1.Controllers
                     loginViewModel.Email, 
                     loginViewModel.Password, 
                     loginViewModel.RememberMe, 
-                    lockoutOnFailure: false);
+                    lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
                     //return RedirectToAction("Index", "Home");
                     return LocalRedirect(returnUrl);
-                } 
+                }
+                else if (result.IsLockedOut)
+                {
+                    return View("Blocked");
+                }
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid Acces");
