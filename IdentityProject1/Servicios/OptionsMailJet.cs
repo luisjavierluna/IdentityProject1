@@ -1,6 +1,6 @@
 ﻿namespace IdentityProject1.Servicios
 {
-    public class OpcionesMailJet
+    public class OptionsMailJet
     {
         public string ApiKey { get; set; }
         public string SecretKey { get; set; }

@@ -1,5 +1,7 @@
 ﻿using IdentityProject1.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityProject1.Controllers
@@ -8,13 +10,16 @@ namespace IdentityProject1.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IEmailSender _emailSender;
 
         public AccountsController(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -127,6 +132,43 @@ namespace IdentityProject1.Controllers
 
         [HttpGet]
         public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel fpViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(fpViewModel.Email);
+                if (user == null)
+                {
+                    return RedirectToAction("ForgotPasswordConfirmation");
+                }
+
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var urlReturn = Url.Action(
+                    "ResetPassword", 
+                    "Accounts", 
+                    new { userId = user.Id, code = code }, 
+                    protocol: HttpContext.Request.Scheme);
+
+                await _emailSender.SendEmailAsync(fpViewModel.Email, "Recover password - Identity Project", 
+                    "Please, click here to recover your password: <a href=\"" + urlReturn + "\">enlace</a>");
+
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            return View(fpViewModel);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordConfirmation()
         {
             return View();
         }

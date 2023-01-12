@@ -1,5 +1,7 @@
 using IdentityProject1.Data;
+using IdentityProject1.Servicios;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSql")));
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().
-    AddEntityFrameworkStores<ApplicationDbContext>();
+    AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -23,6 +26,8 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Lockout.DefaultLockoutTimeSpan= TimeSpan.FromMinutes(1);
     options.Lockout.MaxFailedAccessAttempts= 3;
 });
+
+builder.Services.AddTransient<IEmailSender, MailJetEmailSender>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

@@ -9,7 +9,7 @@ namespace IdentityProject1.Servicios
     public class MailJetEmailSender : IEmailSender
     {
         private readonly IConfiguration _configuration;
-        public OpcionesMailJet _opcionesMailJet;
+        public OptionsMailJet _opcionesMailJet;
 
         public MailJetEmailSender(IConfiguration configuration)
         {
@@ -18,7 +18,7 @@ namespace IdentityProject1.Servicios
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            _opcionesMailJet = _configuration.GetSection("MailJet").Get<OpcionesMailJet>();
+            _opcionesMailJet = _configuration.GetSection("MailJet").Get<OptionsMailJet>();
 
             MailjetClient client = new MailjetClient(_opcionesMailJet.ApiKey, _opcionesMailJet.SecretKey)
             {
