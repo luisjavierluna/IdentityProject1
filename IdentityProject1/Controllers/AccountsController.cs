@@ -172,5 +172,11 @@ namespace IdentityProject1.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string code=null)
+        {
+            return code == null ? View("Error") : View();
+        }
     }
 }
