@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IdentityProject1.Controllers
 {
@@ -177,6 +178,36 @@ namespace IdentityProject1.Controllers
         public IActionResult ResetPassword(string code=null)
         {
             return code == null ? View("Error") : View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(RecoverPasswordViewModel rpViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(rpViewModel.Email);
+                if (user == null)
+                {
+                    return RedirectToAction("RecoverPasswordConfirmation");
+                }
+
+                var result = await _userManager.ResetPasswordAsync(user, rpViewModel.Code, rpViewModel.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("RecoverPasswordConfirmation");
+                }
+
+                ValidateErrors(result);
+            }
+
+            return View(rpViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult RecoverPasswordConfirmation()
+        {
+            return View();
         }
     }
 }
