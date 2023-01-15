@@ -63,6 +63,16 @@ namespace IdentityProject1.Controllers
 
                 if (result.Succeeded)
                 {
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var urlReturn = Url.Action(
+                        "ConfirmEmail",
+                        "Accounts",
+                        new { userId = user.Id, code = code },
+                        protocol: HttpContext.Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(signInViewModel.Email, "Confirm Account - Identity Project",
+                    "Please, click here to confirm your account: <a href=\"" + urlReturn + "\">enlace</a>");
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     //return RedirectToAction("Index", "Home");
                     return LocalRedirect(returnUrl);
@@ -175,6 +185,7 @@ namespace IdentityProject1.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ResetPassword(string code=null)
         {
             return code == null ? View("Error") : View();
@@ -205,9 +216,29 @@ namespace IdentityProject1.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult RecoverPasswordConfirmation()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
     }
 }
